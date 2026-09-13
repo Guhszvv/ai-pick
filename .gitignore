@@ -21,3 +21,4 @@ rustc-ice-*.txt
 
 
 .env
+config.yaml
