@@ -61,11 +61,6 @@ impl Config {
         Ok(())
     }
 
-    /// `ANTHROPIC_AUTH_TOKEN` reuses the top-level `api_key` — no duplication.
-    pub fn auth_token(&self) -> &str {
-        &self.api_key
-    }
-
     /// Empty-string model overrides behave like absent ones (env var not exported).
     fn normalize(&mut self) {        let c = &mut self.claude_code;
         for field in [
@@ -98,7 +93,6 @@ claude_code:
         let cfg: Config = serde_yaml::from_str(VALID).unwrap();
         assert_eq!(cfg.api_key, "sk-test");
         assert_eq!(cfg.harness, Harness::ClaudeCode);
-        assert_eq!(cfg.auth_token(), "sk-test");
         assert_eq!(
             cfg.claude_code.anthropic_default_opus_model.as_deref(),
             Some("my-opus")

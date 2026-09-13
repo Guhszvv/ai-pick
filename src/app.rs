@@ -1,10 +1,12 @@
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Model {
     pub id: String,
     #[serde(default)]
     pub name: Option<String>,
+    #[serde(default)]
+    pub context_length: Option<u64>,
 }
 
 impl Model {
@@ -37,19 +39,23 @@ impl App {
         Self { models }
     }
 
-    /// Show display names in fzf, return the selected model's `id`.
-    pub fn select_model(&self) -> Result<Option<String>, Box<dyn std::error::Error>> {
+    /// Show display names in fzf, return the selected model.
+    pub fn select_model(&self) -> Result<Option<Model>, Box<dyn std::error::Error>> {
         let displays: Vec<String> =
             self.models.iter().map(|m| m.display().to_string()).collect();
         let selected = crate::fzf::pick(displays)?;
-        Ok(selected.and_then(|display| self.id_for_display(&display)))
+        Ok(selected.and_then(|display| self.find_model(&display)))
     }
 
-    fn id_for_display(&self, display: &str) -> Option<String> {
+    fn find_model(&self, display: &str) -> Option<Model> {
         self.models
             .iter()
             .find(|m| m.display() == display)
-            .map(|m| m.id.clone())
+            .cloned()
+    }
+
+    fn id_for_display(&self, display: &str) -> Option<String> {
+        self.find_model(display).map(|m| m.id)
     }
 }
 
