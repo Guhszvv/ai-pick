@@ -3,6 +3,18 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct Model {
     pub id: String,
+    #[serde(default)]
+    pub name: Option<String>,
+}
+
+impl Model {
+    /// Display name for the picker: `name` when present, `id` as fallback.
+    pub fn display(&self) -> &str {
+        self.name
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .unwrap_or(&self.id)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -25,8 +37,66 @@ impl App {
         Self { models }
     }
 
+    /// Show display names in fzf, return the selected model's `id`.
     pub fn select_model(&self) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        let ids: Vec<String> = self.models.iter().map(|m| m.id.clone()).collect();
-        Ok(crate::fzf::pick(ids)?)
+        let displays: Vec<String> =
+            self.models.iter().map(|m| m.display().to_string()).collect();
+        let selected = crate::fzf::pick(displays)?;
+        Ok(selected.and_then(|display| self.id_for_display(&display)))
+    }
+
+    fn id_for_display(&self, display: &str) -> Option<String> {
+        self.models
+            .iter()
+            .find(|m| m.display() == display)
+            .map(|m| m.id.clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Real API shape: extra fields ignored, `name` not always present.
+    const RESPONSE: &str = r#"{
+        "object": "list",
+        "data": [
+            {"id": "qwen/qwen3-next", "object": "model", "created": 1789312012,
+             "owned_by": "x", "context_length": 1000, "name": "Qwen 3 Next"},
+            {"id": "auto/best-coding", "object": "model", "created": 1789312012,
+             "owned_by": "combo", "context_length": 1050000}
+        ]
+    }"#;
+
+    #[test]
+    fn decodes_response_with_missing_name() {
+        let resp: ModelResponse = serde_json::from_str(RESPONSE).unwrap();
+        let models = resp.models();
+        assert_eq!(models.len(), 2);
+        assert_eq!(models[0].name.as_deref(), Some("Qwen 3 Next"));
+        assert!(models[1].name.is_none());
+    }
+
+    #[test]
+    fn display_falls_back_to_id() {
+        let resp: ModelResponse = serde_json::from_str(RESPONSE).unwrap();
+        let models = resp.models();
+        assert_eq!(models[0].display(), "Qwen 3 Next");
+        assert_eq!(models[1].display(), "auto/best-coding");
+    }
+
+    #[test]
+    fn selection_maps_back_to_id() {
+        let resp: ModelResponse = serde_json::from_str(RESPONSE).unwrap();
+        let app = App::new(resp.models());
+        assert_eq!(
+            app.id_for_display("Qwen 3 Next").as_deref(),
+            Some("qwen/qwen3-next")
+        );
+        assert_eq!(
+            app.id_for_display("auto/best-coding").as_deref(),
+            Some("auto/best-coding")
+        );
+        assert!(app.id_for_display("nope").is_none());
     }
 }
