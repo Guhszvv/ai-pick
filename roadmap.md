@@ -1,5 +1,7 @@
 # 1.0.0
 - Model picker
+  - Utilizar o model_name e model_id como fallback
+  - Estilizar o fzf
 - Montagem do comando com ai-jail + ai-memory
 
 # 2.0.0
