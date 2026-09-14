@@ -20,9 +20,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("{e} (copy config.example.yaml to {p} and fill it in)")
     })?;
 
-    let models = api::get_models(&config.api_key, &config.claude_code.anthropic_base_url)
-        .await?
-        .models();
+    // Resolve harness early so we know which discovery to use.
+    let harness = cli_args.harness_override().unwrap_or(config.harness);
+
+    let models = match harness {
+        config::Harness::ClaudeCode => {
+            api::get_models(&config.api_key, &config.claude_code.anthropic_base_url)
+                .await?
+                .models()
+        }
+        config::Harness::Opencode => api::get_opencode_models()?,
+    };
 
     let app = app::App::new(models);
     let Some(model) = app.select_model()? else {
@@ -32,9 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Persist CLI override only after a model was selected, so
     // cancellations and pre-picker errors never rewrite config.
-    let mut harness = config.harness;
     if let Some(forced) = cli_args.harness_override() {
-        harness = forced;
         if forced != config.harness {
             config.harness = forced;
             config.save(&config_path)?;

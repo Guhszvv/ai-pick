@@ -8,7 +8,10 @@ CLI to pick an LLM model via `fzf` and launch a harness (`claude-code` or `openc
 ai-pick → fetch models → fzf picker → exec harness with --model
 ```
 
-`ai-pick` fetches models from a local endpoint (`localhost:20128/v1/models`), opens an interactive selector with `fzf`, and replaces the process with the harness using the selected model (via `exec` — does not return on success).
+`ai-pick` opens an interactive selector with `fzf` and replaces the process with the harness using the selected model (via `exec` — does not return on success).
+
+- **Claude Code**: models are fetched from a custom endpoint.
+- **Opencode**: models are discovered via `opencode models`.
 
 The command is wrapped with `ai-jail` + `ai-memory` for sandboxing and long-term memory. Use `--no-jail` to skip the wrapper.
 
@@ -23,7 +26,7 @@ External dependencies:
 - `fzf` — binary spawned by `ai-pick`
 - `claude` or `opencode` — the harness to execute
 - `ai-jail` / `ai-memory` — sandbox and memory wrappers
-- Models endpoint running at `http://localhost:20128`
+- Custom models endpoint (only for Claude Code)
 
 ## Configuration
 
