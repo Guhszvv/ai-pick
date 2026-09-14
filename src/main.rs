@@ -16,7 +16,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("{e} (copy {CONFIG_PATH} from config.example.yaml and fill it in)")
     })?;
 
-    let models = api::get_models(&config.api_key).await?.models();
+    let models = api::get_models(&config.api_key, &config.claude_code.anthropic_base_url)
+        .await?
+        .models();
 
     let app = app::App::new(models);
     let Some(model) = app.select_model()? else {
