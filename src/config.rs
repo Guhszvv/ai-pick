@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Last harness used by the app. Decided on first run (wizard — follow-up),
 /// persisted afterwards via [`Config::save`].
@@ -44,7 +44,19 @@ pub struct Config {
 }
 
 impl Config {
-    /// Load config from a YAML file (e.g. `config.yaml`).
+    /// XDG config directory: `~/.config/ai-pick/`.
+    pub fn config_dir() -> PathBuf {
+        dirs::config_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("ai-pick")
+    }
+
+    /// Default config file path: `~/.config/ai-pick/config.yaml`.
+    pub fn config_path() -> PathBuf {
+        Self::config_dir().join("config.yaml")
+    }
+
+    /// Load config from a YAML file.
     pub fn load(path: impl AsRef<Path>) -> Result<Self, Box<dyn std::error::Error>> {
         let path = path.as_ref();
         let raw = std::fs::read_to_string(path)
@@ -56,10 +68,14 @@ impl Config {
     }
 
     /// Persist config back to disk (used to store last-used harness).
-    /// Note: rewrites the file, YAML comments are not preserved.
+    /// Creates parent directories if needed. YAML comments are not preserved.
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), Box<dyn std::error::Error>> {
+        let path = path.as_ref();
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
         let raw = serde_yaml::to_string(self)?;
-        std::fs::write(path.as_ref(), raw)?;
+        std::fs::write(path, raw)?;
         Ok(())
     }
 

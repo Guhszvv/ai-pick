@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::path::PathBuf;
 
 use crate::config::Harness;
 
@@ -15,6 +16,9 @@ pub struct Cli {
     /// Skip ai-jail wrapper — exec the harness directly.
     #[arg(long)]
     pub no_jail: bool,
+    /// Path to config file (default: ~/.config/ai-pick/config.yaml).
+    #[arg(long)]
+    pub config: Option<PathBuf>,
 }
 
 impl Cli {

@@ -10,10 +10,14 @@ use std::os::unix::process::CommandExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    const CONFIG_PATH: &str = "config.yaml";
     let cli_args = cli::Cli::parse();
-    let mut config = config::Config::load(CONFIG_PATH).map_err(|e| {
-        format!("{e} (copy {CONFIG_PATH} from config.example.yaml and fill it in)")
+    let config_path = cli_args
+        .config
+        .clone()
+        .unwrap_or_else(config::Config::config_path);
+    let mut config = config::Config::load(&config_path).map_err(|e| {
+        let p = config_path.display();
+        format!("{e} (copy config.example.yaml to {p} and fill it in)")
     })?;
 
     let models = api::get_models(&config.api_key, &config.claude_code.anthropic_base_url)
@@ -27,13 +31,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Persist CLI override only after a model was selected, so
-    // cancellations and pre-picker errors never rewrite config.yaml.
+    // cancellations and pre-picker errors never rewrite config.
     let mut harness = config.harness;
     if let Some(forced) = cli_args.harness_override() {
         harness = forced;
         if forced != config.harness {
             config.harness = forced;
-            config.save(CONFIG_PATH)?;
+            config.save(&config_path)?;
         }
     }
 
