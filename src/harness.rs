@@ -15,8 +15,8 @@ fn wrap_with_jail(harness: &str, harness_args: Vec<String>, envs: Vec<(String, S
     cmd
 }
 
-/// Build the `ai-jail ... ai-memory run claude --model <id>` command with the mandatory env vars.
-pub fn build_claude_command(model: &Model, config: &Config) -> Command {
+/// Resolve env vars for the claude harness.
+fn claude_envs(model: &Model, config: &Config) -> Vec<(String, String)> {
     let api_key = config
         .claude_code
         .anthropic_api_key
@@ -30,7 +30,6 @@ pub fn build_claude_command(model: &Model, config: &Config) -> Command {
     if let Some(context_length) = model.context_length {
         envs.push(("CLAUDE_CODE_MAX_CONTEXT_TOKENS".into(), context_length.to_string()));
     }
-    // Optional model overrides — omit if not configured.
     for (env, val) in [
         ("ANTHROPIC_DEFAULT_OPUS_MODEL", &config.claude_code.anthropic_default_opus_model),
         ("ANTHROPIC_DEFAULT_SONNET_MODEL", &config.claude_code.anthropic_default_sonnet_model),
@@ -41,12 +40,35 @@ pub fn build_claude_command(model: &Model, config: &Config) -> Command {
             envs.push((env.into(), v.clone()));
         }
     }
-    wrap_with_jail("claude", vec!["--model".into(), model.id.clone()], envs)
+    envs
 }
 
-/// Build the `ai-jail ... ai-memory run opencode --model <id>` command.
-pub fn build_opencode_command(model: &Model) -> Command {
-    wrap_with_jail("opencode", vec!["--model".into(), model.id.clone()], vec![])
+/// Build the `claude --model <id>` command, wrapped with ai-jail unless `no_jail`.
+pub fn build_claude_command(model: &Model, config: &Config, no_jail: bool) -> Command {
+    let envs = claude_envs(model, config);
+    let args = vec!["--model".into(), model.id.clone()];
+    if no_jail {
+        let mut cmd = Command::new("claude");
+        cmd.args(&args);
+        for (key, val) in &envs {
+            cmd.env(key, val);
+        }
+        cmd
+    } else {
+        wrap_with_jail("claude", args, envs)
+    }
+}
+
+/// Build the `opencode --model <id>` command, wrapped with ai-jail unless `no_jail`.
+pub fn build_opencode_command(model: &Model, no_jail: bool) -> Command {
+    let args = vec!["--model".into(), model.id.clone()];
+    if no_jail {
+        let mut cmd = Command::new("opencode");
+        cmd.args(&args);
+        cmd
+    } else {
+        wrap_with_jail("opencode", args, vec![])
+    }
 }
 
 #[cfg(test)]
@@ -77,7 +99,7 @@ mod tests {
             name: Some("Qwen 3 Next".to_string()),
             context_length: Some(1000),
         };
-        let cmd = build_claude_command(&model, &config);
+        let cmd = build_claude_command(&model, &config, false);
 
         let args: Vec<_> = cmd
             .get_args()
@@ -105,7 +127,7 @@ mod tests {
             name: None,
             context_length: None,
         };
-        let cmd = build_claude_command(&model, &config);
+        let cmd = build_claude_command(&model, &config, false);
 
         let args: Vec<_> = cmd
             .get_args()
@@ -123,7 +145,7 @@ mod tests {
             name: Some("Qwen 3 Next".to_string()),
             context_length: Some(1000),
         };
-        let cmd = build_opencode_command(&model);
+        let cmd = build_opencode_command(&model, false);
 
         let args: Vec<_> = cmd
             .get_args()
@@ -152,7 +174,7 @@ mod tests {
             name: None,
             context_length: None,
         };
-        let cmd = build_claude_command(&model, &config);
+        let cmd = build_claude_command(&model, &config, false);
 
         let args: Vec<_> = cmd
             .get_args()
@@ -173,12 +195,51 @@ mod tests {
             name: None,
             context_length: None,
         };
-        let cmd = build_claude_command(&model, &config);
+        let cmd = build_claude_command(&model, &config, false);
 
         let args: Vec<_> = cmd
             .get_args()
             .map(|a| a.to_str().unwrap().to_string())
             .collect();
         assert!(args.iter().any(|a| a == "ANTHROPIC_API_KEY=sk-custom-key"));
+    }
+
+    #[test]
+    fn claude_no_jail_skips_wrapper() {
+        let config = fixture_config();
+        let model = Model {
+            id: "qwen/qwen3-next".to_string(),
+            name: None,
+            context_length: None,
+        };
+        let cmd = build_claude_command(&model, &config, true);
+
+        let prog = cmd.get_program().to_str().unwrap();
+        assert_eq!(prog, "claude");
+
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|a| a.to_str().unwrap().to_string())
+            .collect();
+        assert_eq!(args, vec!["--model", "qwen/qwen3-next"]);
+    }
+
+    #[test]
+    fn opencode_no_jail_skips_wrapper() {
+        let model = Model {
+            id: "qwen/qwen3-next".to_string(),
+            name: None,
+            context_length: None,
+        };
+        let cmd = build_opencode_command(&model, true);
+
+        let prog = cmd.get_program().to_str().unwrap();
+        assert_eq!(prog, "opencode");
+
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|a| a.to_str().unwrap().to_string())
+            .collect();
+        assert_eq!(args, vec!["--model", "qwen/qwen3-next"]);
     }
 }

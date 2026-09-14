@@ -17,8 +17,8 @@ Rust CLI that picks a model via `fzf` and `exec`s the harness with `--model`.
 ## Architecture (src/)
 
 - `main.rs`: `Cli::parse` → `Config::load` → `get_models` → `select_model` → maybe `Config::save` → `CommandExt::exec` (replaces process; `exec` never returns on success).
-- `cli.rs`: `--claude-code` / `--opencode` (conflicting). No flag = fallback to `config.harness`.
-- `harness.rs`: command assembly. Claude: `claude --model <id>` + `ANTHROPIC_AUTH_TOKEN=ollama` (fixed literal), `ANTHROPIC_API_KEY=<api_key>`, `ANTHROPIC_BASE_URL=<claude_code.anthropic_base_url>`, `CLAUDE_CODE_MAX_CONTEXT_TOKENS=<context_length>` omitted when `None`. Opencode: `opencode --model <id>`, no envs.
+- `cli.rs`: `--claude-code` / `--opencode` (conflicting), `--no-jail` (skips ai-jail wrapper). No harness flag = fallback to `config.harness`.
+- `harness.rs`: command assembly. By default wraps with `ai-jail --gpu --network --agent-state --no-status-bar [--env ...] ai-memory run <harness>`. With `--no-jail`, execs the harness directly. Claude envs: `ANTHROPIC_AUTH_TOKEN=ollama` (fixed), `ANTHROPIC_API_KEY=<api_key>`, `ANTHROPIC_BASE_URL=<base_url>`, `CLAUDE_CODE_MAX_CONTEXT_TOKENS=<context_length>` omitted when `None`. Opencode: no envs.
 - `app.rs`: `Model { id, name?, context_length? }`; picker shows `name` with `id` fallback and returns the full `Model`.
 - `config.rs`: `Config::save` rewrites YAML and drops comments. Save happens only after model selection — cancellations never touch `config.yaml`.
 

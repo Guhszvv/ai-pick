@@ -12,6 +12,9 @@ pub struct Cli {
     /// Use the opencode harness for this run (also persisted).
     #[arg(long, conflicts_with = "claude_code")]
     pub opencode: bool,
+    /// Skip ai-jail wrapper — exec the harness directly.
+    #[arg(long)]
+    pub no_jail: bool,
 }
 
 impl Cli {

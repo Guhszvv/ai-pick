@@ -10,7 +10,7 @@ ai-pick → fetch models → fzf picker → exec harness with --model
 
 `ai-pick` fetches models from a local endpoint (`localhost:20128/v1/models`), opens an interactive selector with `fzf`, and replaces the process with the harness using the selected model (via `exec` — does not return on success).
 
-The command is wrapped with `ai-jail` + `ai-memory` for sandboxing and long-term memory.
+The command is wrapped with `ai-jail` + `ai-memory` for sandboxing and long-term memory. Use `--no-jail` to skip the wrapper.
 
 ## Setup
 
@@ -53,6 +53,9 @@ ai-pick --claude-code
 
 # force opencode for this run
 ai-pick --opencode
+
+# skip ai-jail wrapper — exec harness directly
+ai-pick --no-jail
 ```
 
 The harness choice via flag is persisted in `config.yaml` (only after model selection — cancellations never touch the config).

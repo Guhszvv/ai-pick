@@ -39,11 +39,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match harness {
         config::Harness::ClaudeCode => {
-            let err = harness::build_claude_command(&model, &config).exec();
+            let err = harness::build_claude_command(&model, &config, cli_args.no_jail).exec();
             Err(format!("failed to exec `claude`: {err}").into())
         }
         config::Harness::Opencode => {
-            let err = harness::build_opencode_command(&model).exec();
+            let err = harness::build_opencode_command(&model, cli_args.no_jail).exec();
             Err(format!("failed to exec `opencode`: {err}").into())
         }
     }
