@@ -4,9 +4,11 @@ api_key: "sk-your-key-here"
 harness: "claude-code" # claude-code | opencode (last harness used)
 
 claude_code:
+  # Override the top-level api_key for Claude Code specifically:
+  # anthropic_api_key: "sk-claude-only"
   anthropic_base_url: "http://localhost:20128"
   # Env assembly for `claude --model <id>`:
-  # ANTHROPIC_AUTH_TOKEN=ollama (fixed), ANTHROPIC_API_KEY=<api_key above>,
+  # ANTHROPIC_AUTH_TOKEN=ollama (fixed), ANTHROPIC_API_KEY=<anthropic_api_key or api_key>,
   # ANTHROPIC_BASE_URL=<anthropic_base_url>, CLAUDE_CODE_MAX_CONTEXT_TOKENS=<context_length>.
   # Optional model overrides (omit or leave empty = don't export):
   # anthropic_default_opus_model: "..."

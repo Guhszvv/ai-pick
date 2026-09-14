@@ -17,9 +17,14 @@ fn wrap_with_jail(harness: &str, harness_args: Vec<String>, envs: Vec<(String, S
 
 /// Build the `ai-jail ... ai-memory run claude --model <id>` command with the mandatory env vars.
 pub fn build_claude_command(model: &Model, config: &Config) -> Command {
+    let api_key = config
+        .claude_code
+        .anthropic_api_key
+        .clone()
+        .unwrap_or_else(|| config.api_key.clone());
     let mut envs = vec![
         ("ANTHROPIC_AUTH_TOKEN".into(), "ollama".into()),
-        ("ANTHROPIC_API_KEY".into(), config.api_key.clone()),
+        ("ANTHROPIC_API_KEY".into(), api_key),
         ("ANTHROPIC_BASE_URL".into(), config.claude_code.anthropic_base_url.clone()),
     ];
     if let Some(context_length) = model.context_length {
@@ -54,6 +59,7 @@ mod tests {
             api_key: "sk-test".to_string(),
             harness: Harness::ClaudeCode,
             claude_code: ClaudeCodeConfig {
+                anthropic_api_key: None,
                 anthropic_base_url: "http://localhost:20128".to_string(),
                 anthropic_default_opus_model: None,
                 anthropic_default_sonnet_model: None,
@@ -156,5 +162,23 @@ mod tests {
         assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_SONNET_MODEL=local-sonnet"));
         assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_HAIKU_MODEL=local-haiku"));
         assert!(args.iter().any(|a| a == "CLAUDE_CODE_SUBAGENT_MODEL=local-sub"));
+    }
+
+    #[test]
+    fn anthropic_api_key_override() {
+        let mut config = fixture_config();
+        config.claude_code.anthropic_api_key = Some("sk-custom-key".into());
+        let model = Model {
+            id: "qwen/qwen3-next".to_string(),
+            name: None,
+            context_length: None,
+        };
+        let cmd = build_claude_command(&model, &config);
+
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|a| a.to_str().unwrap().to_string())
+            .collect();
+        assert!(args.iter().any(|a| a == "ANTHROPIC_API_KEY=sk-custom-key"));
     }
 }

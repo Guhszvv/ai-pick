@@ -23,6 +23,8 @@ impl fmt::Display for Harness {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ClaudeCodeConfig {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub anthropic_api_key: Option<String>,
     pub anthropic_base_url: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub anthropic_default_opus_model: Option<String>,
