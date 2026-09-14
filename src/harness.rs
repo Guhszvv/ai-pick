@@ -25,6 +25,17 @@ pub fn build_claude_command(model: &Model, config: &Config) -> Command {
     if let Some(context_length) = model.context_length {
         envs.push(("CLAUDE_CODE_MAX_CONTEXT_TOKENS".into(), context_length.to_string()));
     }
+    // Optional model overrides — omit if not configured.
+    for (env, val) in [
+        ("ANTHROPIC_DEFAULT_OPUS_MODEL", &config.claude_code.anthropic_default_opus_model),
+        ("ANTHROPIC_DEFAULT_SONNET_MODEL", &config.claude_code.anthropic_default_sonnet_model),
+        ("ANTHROPIC_DEFAULT_HAIKU_MODEL", &config.claude_code.anthropic_default_haiku_model),
+        ("CLAUDE_CODE_SUBAGENT_MODEL", &config.claude_code.claude_code_subagent_model),
+    ] {
+        if let Some(v) = val {
+            envs.push((env.into(), v.clone()));
+        }
+    }
     wrap_with_jail("claude", vec!["--model".into(), model.id.clone()], envs)
 }
 
@@ -121,5 +132,29 @@ mod tests {
             ]
         );
         assert!(!args.iter().any(|a| a.starts_with("ANTHROPIC_")));
+    }
+
+    #[test]
+    fn exports_optional_model_overrides() {
+        let mut config = fixture_config();
+        config.claude_code.anthropic_default_opus_model = Some("local-opus".into());
+        config.claude_code.anthropic_default_sonnet_model = Some("local-sonnet".into());
+        config.claude_code.anthropic_default_haiku_model = Some("local-haiku".into());
+        config.claude_code.claude_code_subagent_model = Some("local-sub".into());
+        let model = Model {
+            id: "qwen/qwen3-next".to_string(),
+            name: None,
+            context_length: None,
+        };
+        let cmd = build_claude_command(&model, &config);
+
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|a| a.to_str().unwrap().to_string())
+            .collect();
+        assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_OPUS_MODEL=local-opus"));
+        assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_SONNET_MODEL=local-sonnet"));
+        assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_HAIKU_MODEL=local-haiku"));
+        assert!(args.iter().any(|a| a == "CLAUDE_CODE_SUBAGENT_MODEL=local-sub"));
     }
 }
