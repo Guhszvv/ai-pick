@@ -4,7 +4,7 @@ Rust CLI that picks a model via `fzf` and `exec`s the harness with `--model`.
 
 ## Commands
 
-- `cargo test` — all unit tests (inline `mod tests` per file). Single test: `cargo test <name>`.
+- `cargo test` — all unit tests. Single test: `cargo test <name>`.
 - `cargo build` — binary at `./target/debug/ai-pick`. `--help` works without config: `./target/debug/ai-pick --help`.
 - Full run needs: `config.yaml` present + `fzf` installed + models endpoint up at `http://localhost:20128`.
 
@@ -21,6 +21,11 @@ Rust CLI that picks a model via `fzf` and `exec`s the harness with `--model`.
 - `harness.rs`: command assembly. By default wraps with `ai-jail --gpu --network --agent-state --no-status-bar [--env ...] ai-memory run <harness>`. With `--no-jail`, execs the harness directly. Claude envs: `ANTHROPIC_AUTH_TOKEN=ollama` (fixed), `ANTHROPIC_API_KEY=<api_key>`, `ANTHROPIC_BASE_URL=<base_url>`, `CLAUDE_CODE_MAX_CONTEXT_TOKENS=<context_length>` omitted when `None`. Opencode: no envs.
 - `app.rs`: `Model { id, name?, context_length? }`; picker shows `name` with `id` fallback and returns the full `Model`.
 - `config.rs`: `Config::save` rewrites YAML and drops comments. Save happens only after model selection — cancellations never touch `config.yaml`.
+
+## Tests
+
+- Small test modules (≤100 lines) stay inline as `#[cfg(test)] mod tests { ... }` in the source file.
+- Large test modules (>100 lines) move to `src/tests/<module>.rs` and are referenced via `#[cfg(test)] #[path = "tests/<module>.rs"] mod tests;` in the source file. This keeps them as submodules (access to private items via `super::*`).
 
 ## Gotchas
 
