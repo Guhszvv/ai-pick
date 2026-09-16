@@ -18,9 +18,12 @@ The command is wrapped with `ai-jail` + `ai-memory` for sandboxing and long-term
 ## Setup
 
 ```bash
-cp config.example.yaml config.yaml
-# edit config.yaml — fill in api_key
+./install.sh
 ```
+
+This builds the release binary, copies it to `~/.local/bin/`, and creates `~/.config/ai-pick/config.yaml` from the example (only if it doesn't exist yet). Run again anytime to update.
+
+Make sure `~/.local/bin` is in your `$PATH`.
 
 External dependencies:
 - `fzf` — binary spawned by `ai-pick`
@@ -30,7 +33,7 @@ External dependencies:
 
 ## Configuration
 
-`config.yaml`:
+`~/.config/ai-pick/config.yaml`:
 
 ```yaml
 api_key: "sk-your-key"
@@ -59,6 +62,9 @@ ai-pick --opencode
 
 # skip ai-jail wrapper — exec harness directly
 ai-pick --no-jail
+
+# use a custom config file
+ai-pick --config ./my-config.yaml
 ```
 
 The harness choice via flag is persisted in `config.yaml` (only after model selection — cancellations never touch the config).
