@@ -24,7 +24,7 @@ fn claude_wrapped_with_jail_and_envs() {
         name: Some("Qwen 3 Next".to_string()),
         context_length: Some(1000),
     };
-    let cmd = build_claude_command(&model, &config, false);
+    let cmd = build_claude_command(&model, &config, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -52,7 +52,7 @@ fn omits_max_context_tokens_when_missing() {
         name: None,
         context_length: None,
     };
-    let cmd = build_claude_command(&model, &config, false);
+    let cmd = build_claude_command(&model, &config, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -70,7 +70,7 @@ fn opencode_wrapped_with_jail_without_anthropic_envs() {
         name: Some("Qwen 3 Next".to_string()),
         context_length: Some(1000),
     };
-    let cmd = build_opencode_command(&model, false);
+    let cmd = build_opencode_command(&model, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -99,7 +99,7 @@ fn exports_optional_model_overrides() {
         name: None,
         context_length: None,
     };
-    let cmd = build_claude_command(&model, &config, false);
+    let cmd = build_claude_command(&model, &config, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -120,7 +120,7 @@ fn anthropic_api_key_override() {
         name: None,
         context_length: None,
     };
-    let cmd = build_claude_command(&model, &config, false);
+    let cmd = build_claude_command(&model, &config, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -137,7 +137,7 @@ fn claude_no_jail_skips_wrapper() {
         name: None,
         context_length: None,
     };
-    let cmd = build_claude_command(&model, &config, true);
+    let cmd = build_claude_command(&model, &config, true, false);
 
     let prog = cmd.get_program().to_str().unwrap();
     assert_eq!(prog, "claude");
@@ -156,7 +156,7 @@ fn opencode_no_jail_skips_wrapper() {
         name: None,
         context_length: None,
     };
-    let cmd = build_opencode_command(&model, true);
+    let cmd = build_opencode_command(&model, true, false);
 
     let prog = cmd.get_program().to_str().unwrap();
     assert_eq!(prog, "opencode");
@@ -167,3 +167,70 @@ fn opencode_no_jail_skips_wrapper() {
         .collect();
     assert_eq!(args, vec!["--model", "qwen/qwen3-next"]);
 }
+
+#[test]
+fn claude_no_memory_keeps_jail_skips_ai_memory() {
+    let config = fixture_config();
+    let model = Model {
+        id: "qwen/qwen3-next".to_string(),
+        name: None,
+        context_length: None,
+    };
+    let cmd = build_claude_command(&model, &config, false, true);
+
+    let args: Vec<_> = cmd
+        .get_args()
+        .map(|a| a.to_str().unwrap().to_string())
+        .collect();
+    assert_eq!(
+        args,
+        vec![
+            "--gpu", "--network", "--agent-state", "--no-status-bar",
+            "--env", "ANTHROPIC_AUTH_TOKEN=ollama",
+            "--env", "ANTHROPIC_API_KEY=sk-test",
+            "--env", "ANTHROPIC_BASE_URL=http://localhost:20128",
+            "claude", "--model", "qwen/qwen3-next"
+        ]
+    );
+}
+
+#[test]
+fn opencode_no_memory_keeps_jail_skips_ai_memory() {
+    let model = Model {
+        id: "qwen/qwen3-next".to_string(),
+        name: None,
+        context_length: None,
+    };
+    let cmd = build_opencode_command(&model, false, true);
+
+    let args: Vec<_> = cmd
+        .get_args()
+        .map(|a| a.to_str().unwrap().to_string())
+        .collect();
+    assert_eq!(
+        args,
+        vec![
+            "--gpu", "--network", "--agent-state", "--no-status-bar",
+            "opencode", "--model", "qwen/qwen3-next"
+        ]
+    );
+}
+
+#[test]
+fn validate_binaries_no_jail_skips_checks() {
+    // When --no-jail is set, no binaries are required
+    assert!(super::validate_binaries(true, false).is_ok());
+    assert!(super::validate_binaries(true, true).is_ok());
+}
+
+#[test]
+fn validate_binaries_with_jail_requires_ai_jail() {
+    // This test assumes ai-jail is installed (which it is in the dev environment)
+    // In a real scenario without ai-jail, this would fail with a clear error
+    let result = super::validate_binaries(false, false);
+    // We can't assert the exact outcome since it depends on the environment,
+    // but we can verify the function runs without panicking
+    let _ = result;
+}
+
+

@@ -47,13 +47,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    // Validate required binaries are in PATH before attempting exec
+    if let Err(e) = harness::validate_binaries(cli_args.no_jail, cli_args.no_memory) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+
     match harness {
         config::Harness::ClaudeCode => {
-            let err = harness::build_claude_command(&model, &config, cli_args.no_jail).exec();
+            let err = harness::build_claude_command(&model, &config, cli_args.no_jail, cli_args.no_memory).exec();
             Err(format!("failed to exec `claude`: {err}").into())
         }
         config::Harness::Opencode => {
-            let err = harness::build_opencode_command(&model, cli_args.no_jail).exec();
+            let err = harness::build_opencode_command(&model, cli_args.no_jail, cli_args.no_memory).exec();
             Err(format!("failed to exec `opencode`: {err}").into())
         }
     }

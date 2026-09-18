@@ -16,6 +16,9 @@ pub struct Cli {
     /// Skip ai-jail wrapper — exec the harness directly.
     #[arg(long)]
     pub no_jail: bool,
+    /// Skip ai-memory wrapper — wrap with ai-jail but exec the harness directly.
+    #[arg(long)]
+    pub no_memory: bool,
     /// Path to config file (default: ~/.config/ai-pick/config.yaml).
     #[arg(long)]
     pub config: Option<PathBuf>,
