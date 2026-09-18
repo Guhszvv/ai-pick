@@ -5,7 +5,7 @@ use crate::app::{Model, ModelResponse};
 pub async fn get_models(
     api_key: &str,
     base_url: &str,
-) -> Result<ModelResponse, reqwest::Error> {
+) -> Result<ModelResponse, Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let url = format!("{base_url}/v1/models");
     let response = client
@@ -13,6 +13,13 @@ pub async fn get_models(
         .bearer_auth(api_key)
         .send()
         .await?;
+
+    let status = response.status();
+    if !status.is_success() {
+        let body = response.text().await.unwrap_or_default();
+        let preview = if body.len() > 500 { &body[..500] } else { &body };
+        return Err(format!("API returned {status}: {preview}").into());
+    }
 
     Ok(response.json().await?)
 }
