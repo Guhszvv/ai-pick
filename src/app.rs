@@ -54,9 +54,6 @@ impl App {
             .cloned()
     }
 
-    fn id_for_display(&self, display: &str) -> Option<String> {
-        self.find_model(display).map(|m| m.id)
-    }
 }
 
 #[cfg(test)]
@@ -92,17 +89,11 @@ mod tests {
     }
 
     #[test]
-    fn selection_maps_back_to_id() {
+    fn find_model_returns_match() {
         let resp: ModelResponse = serde_json::from_str(RESPONSE).unwrap();
         let app = App::new(resp.models());
-        assert_eq!(
-            app.id_for_display("Qwen 3 Next").as_deref(),
-            Some("qwen/qwen3-next")
-        );
-        assert_eq!(
-            app.id_for_display("auto/best-coding").as_deref(),
-            Some("auto/best-coding")
-        );
-        assert!(app.id_for_display("nope").is_none());
+        assert_eq!(app.find_model("Qwen 3 Next").unwrap().id, "qwen/qwen3-next");
+        assert_eq!(app.find_model("auto/best-coding").unwrap().id, "auto/best-coding");
+        assert!(app.find_model("nope").is_none());
     }
 }

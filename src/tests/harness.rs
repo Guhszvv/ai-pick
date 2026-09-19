@@ -74,7 +74,7 @@ fn opencode_wrapped_with_jail_without_anthropic_envs() {
         name: Some("Qwen 3 Next".to_string()),
         context_length: Some(1000),
     };
-    let cmd = build_opencode_command(&model, false, false);
+    let cmd = build_harness_command("opencode", &model, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -160,7 +160,7 @@ fn opencode_no_jail_skips_wrapper() {
         name: None,
         context_length: None,
     };
-    let cmd = build_opencode_command(&model, true, false);
+    let cmd = build_harness_command("opencode", &model, true, false);
 
     let prog = cmd.get_program().to_str().unwrap();
     assert_eq!(prog, "opencode");
@@ -205,7 +205,7 @@ fn opencode_no_memory_keeps_jail_skips_ai_memory() {
         name: None,
         context_length: None,
     };
-    let cmd = build_opencode_command(&model, false, true);
+    let cmd = build_harness_command("opencode", &model, false, true);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -244,7 +244,7 @@ fn omp_wrapped_with_jail_and_memory() {
         name: Some("Qwen 3 Next".to_string()),
         context_length: Some(1000),
     };
-    let cmd = build_omp_command(&model, false, false);
+    let cmd = build_harness_command("omp", &model, false, false);
 
     let args: Vec<_> = cmd
         .get_args()
@@ -267,7 +267,7 @@ fn omp_no_jail_skips_wrapper() {
         name: None,
         context_length: None,
     };
-    let cmd = build_omp_command(&model, true, false);
+    let cmd = build_harness_command("omp", &model, true, false);
 
     let prog = cmd.get_program().to_str().unwrap();
     assert_eq!(prog, "omp");
@@ -286,7 +286,7 @@ fn omp_no_memory_keeps_jail_skips_ai_memory() {
         name: None,
         context_length: None,
     };
-    let cmd = build_omp_command(&model, false, true);
+    let cmd = build_harness_command("omp", &model, false, true);
 
     let args: Vec<_> = cmd
         .get_args()

@@ -65,11 +65,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(format!("failed to exec `claude`: {err}").into())
         }
         config::Harness::Opencode => {
-            let err = harness::build_opencode_command(&model, cli_args.no_jail, cli_args.no_memory).exec();
+            let err = harness::build_harness_command("opencode", &model, cli_args.no_jail, cli_args.no_memory).exec();
             Err(format!("failed to exec `opencode`: {err}").into())
         }
         config::Harness::OmP => {
-            let err = harness::build_omp_command(&model, cli_args.no_jail, cli_args.no_memory).exec();
+            let err = harness::build_harness_command("omp", &model, cli_args.no_jail, cli_args.no_memory).exec();
             Err(format!("failed to exec `omp`: {err}").into())
         }
     }

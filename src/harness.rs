@@ -95,27 +95,15 @@ pub fn build_claude_command(model: &Model, config: &Config, no_jail: bool, no_me
     }
 }
 
-/// Build the `opencode --model <id>` command, wrapped with ai-jail unless `no_jail`.
-pub fn build_opencode_command(model: &Model, no_jail: bool, no_memory: bool) -> Command {
+/// Build a harness command (`<name> --model <id>`), wrapped with ai-jail unless `no_jail`.
+pub fn build_harness_command(name: &str, model: &Model, no_jail: bool, no_memory: bool) -> Command {
     let args = vec!["--model".into(), model.id.clone()];
     if no_jail {
-        let mut cmd = Command::new("opencode");
+        let mut cmd = Command::new(name);
         cmd.args(&args);
         cmd
     } else {
-        wrap_with_jail("opencode", args, vec![], no_memory)
-    }
-}
-
-/// Build the `omp --model <id>` command, wrapped with ai-jail unless `no_jail`.
-pub fn build_omp_command(model: &Model, no_jail: bool, no_memory: bool) -> Command {
-    let args = vec!["--model".into(), model.id.clone()];
-    if no_jail {
-        let mut cmd = Command::new("omp");
-        cmd.args(&args);
-        cmd
-    } else {
-        wrap_with_jail("omp", args, vec![], no_memory)
+        wrap_with_jail(name, args, vec![], no_memory)
     }
 }
 
