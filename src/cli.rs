@@ -8,11 +8,14 @@ use crate::config::Harness;
 #[command(name = "ai-pick", about = "Pick a model and exec the harness")]
 pub struct Cli {
     /// Use the claude-code harness for this run (also persisted).
-    #[arg(long, conflicts_with = "opencode")]
+    #[arg(long, conflicts_with_all = ["opencode", "omp"])]
     pub claude_code: bool,
     /// Use the opencode harness for this run (also persisted).
-    #[arg(long, conflicts_with = "claude_code")]
+    #[arg(long, conflicts_with_all = ["claude_code", "omp"])]
     pub opencode: bool,
+    /// Use the oh-my-pi (omp) harness for this run (also persisted).
+    #[arg(long, conflicts_with_all = ["claude_code", "opencode"])]
+    pub omp: bool,
     /// Skip ai-jail wrapper — exec the harness directly.
     #[arg(long)]
     pub no_jail: bool,
@@ -31,6 +34,8 @@ impl Cli {
             Some(Harness::ClaudeCode)
         } else if self.opencode {
             Some(Harness::Opencode)
+        } else if self.omp {
+            Some(Harness::OmP)
         } else {
             None
         }
@@ -60,7 +65,15 @@ mod tests {
     }
 
     #[test]
+    fn omp_flag_overrides() {
+        let cli = Cli::try_parse_from(["ai-pick", "--omp"]).unwrap();
+        assert_eq!(cli.harness_override(), Some(Harness::OmP));
+    }
+
+    #[test]
     fn conflicting_flags_are_rejected() {
         assert!(Cli::try_parse_from(["ai-pick", "--claude-code", "--opencode"]).is_err());
+        assert!(Cli::try_parse_from(["ai-pick", "--claude-code", "--omp"]).is_err());
+        assert!(Cli::try_parse_from(["ai-pick", "--opencode", "--omp"]).is_err());
     }
 }

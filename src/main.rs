@@ -30,6 +30,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .models()
         }
         config::Harness::Opencode => api::get_opencode_models()?,
+        config::Harness::OmP => {
+            let omp_api_key = config.omp.api_key.as_deref().unwrap_or(&config.api_key);
+            api::get_models(omp_api_key, &config.omp.base_url)
+                .await?
+                .models()
+        }
     };
 
     let app = app::App::new(models);
@@ -61,6 +67,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config::Harness::Opencode => {
             let err = harness::build_opencode_command(&model, cli_args.no_jail, cli_args.no_memory).exec();
             Err(format!("failed to exec `opencode`: {err}").into())
+        }
+        config::Harness::OmP => {
+            let err = harness::build_omp_command(&model, cli_args.no_jail, cli_args.no_memory).exec();
+            Err(format!("failed to exec `omp`: {err}").into())
         }
     }
 }

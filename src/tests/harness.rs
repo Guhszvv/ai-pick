@@ -1,5 +1,5 @@
 use super::*;
-use crate::config::{ClaudeCodeConfig, Harness};
+use crate::config::{ClaudeCodeConfig, Harness, OmPConfig};
 
 fn fixture_config() -> Config {
     Config {
@@ -12,6 +12,10 @@ fn fixture_config() -> Config {
             anthropic_default_sonnet_model: None,
             anthropic_default_haiku_model: None,
             claude_code_subagent_model: None,
+        },
+        omp: OmPConfig {
+            base_url: "http://localhost:11434".to_string(),
+            api_key: None,
         },
     }
 }
@@ -231,6 +235,70 @@ fn validate_binaries_with_jail_requires_ai_jail() {
     // We can't assert the exact outcome since it depends on the environment,
     // but we can verify the function runs without panicking
     let _ = result;
+}
+
+#[test]
+fn omp_wrapped_with_jail_and_memory() {
+    let model = Model {
+        id: "qwen/qwen3-next".to_string(),
+        name: Some("Qwen 3 Next".to_string()),
+        context_length: Some(1000),
+    };
+    let cmd = build_omp_command(&model, false, false);
+
+    let args: Vec<_> = cmd
+        .get_args()
+        .map(|a| a.to_str().unwrap().to_string())
+        .collect();
+    assert_eq!(
+        args,
+        vec![
+            "--gpu", "--network", "--agent-state", "--no-status-bar",
+            "ai-memory", "run",
+            "omp", "--model", "qwen/qwen3-next"
+        ]
+    );
+}
+
+#[test]
+fn omp_no_jail_skips_wrapper() {
+    let model = Model {
+        id: "qwen/qwen3-next".to_string(),
+        name: None,
+        context_length: None,
+    };
+    let cmd = build_omp_command(&model, true, false);
+
+    let prog = cmd.get_program().to_str().unwrap();
+    assert_eq!(prog, "omp");
+
+    let args: Vec<_> = cmd
+        .get_args()
+        .map(|a| a.to_str().unwrap().to_string())
+        .collect();
+    assert_eq!(args, vec!["--model", "qwen/qwen3-next"]);
+}
+
+#[test]
+fn omp_no_memory_keeps_jail_skips_ai_memory() {
+    let model = Model {
+        id: "qwen/qwen3-next".to_string(),
+        name: None,
+        context_length: None,
+    };
+    let cmd = build_omp_command(&model, false, true);
+
+    let args: Vec<_> = cmd
+        .get_args()
+        .map(|a| a.to_str().unwrap().to_string())
+        .collect();
+    assert_eq!(
+        args,
+        vec![
+            "--gpu", "--network", "--agent-state", "--no-status-bar",
+            "omp", "--model", "qwen/qwen3-next"
+        ]
+    );
 }
 
 
