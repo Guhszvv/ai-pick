@@ -30,12 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .models()
         }
         config::Harness::Opencode => api::get_opencode_models()?,
-        config::Harness::OmP => {
-            let omp_api_key = config.omp.api_key.as_deref().unwrap_or(&config.api_key);
-            api::get_models(omp_api_key, &config.omp.base_url)
-                .await?
-                .models()
-        }
+        config::Harness::OmP => api::get_omp_models()?,
     };
 
     let app = app::App::new(models);
@@ -61,15 +56,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match harness {
         config::Harness::ClaudeCode => {
-            let err = harness::build_claude_command(&model, &config, cli_args.no_jail, cli_args.no_memory).exec();
+            let err = harness::build_claude_command(
+                &model,
+                &config,
+                cli_args.no_jail,
+                cli_args.no_memory,
+            )
+            .exec();
             Err(format!("failed to exec `claude`: {err}").into())
         }
         config::Harness::Opencode => {
-            let err = harness::build_harness_command("opencode", &model, cli_args.no_jail, cli_args.no_memory).exec();
+            let err = harness::build_harness_command(
+                "opencode",
+                &model,
+                cli_args.no_jail,
+                cli_args.no_memory,
+            )
+            .exec();
             Err(format!("failed to exec `opencode`: {err}").into())
         }
         config::Harness::OmP => {
-            let err = harness::build_harness_command("omp", &model, cli_args.no_jail, cli_args.no_memory).exec();
+            let err =
+                harness::build_harness_command("omp", &model, cli_args.no_jail, cli_args.no_memory)
+                    .exec();
             Err(format!("failed to exec `omp`: {err}").into())
         }
     }
