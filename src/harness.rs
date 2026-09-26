@@ -35,7 +35,7 @@ pub fn validate_binaries(no_jail: bool, no_memory: bool) -> Result<(), String> {
     Ok(())
 }
 
-/// Wrap a harness command with `ai-jail --gpu --network --agent-state [--env ...] ai-memory run`.
+/// Wrap a harness command with `ai-jail --gpu --display --network --agent-state [--env ...] ai-memory run`.
 fn wrap_with_jail(
     harness: &str,
     harness_args: Vec<String>,
@@ -43,7 +43,13 @@ fn wrap_with_jail(
     no_memory: bool,
 ) -> Command {
     let mut cmd = Command::new("ai-jail");
-    cmd.args(["--gpu", "--network", "--agent-state", "--no-status-bar"]);
+    cmd.args([
+        "--gpu",
+        "--display",
+        "--network",
+        "--agent-state",
+        "--no-status-bar",
+    ]);
     for (key, val) in &envs {
         cmd.args(["--env", &format!("{key}={val}")]);
     }
