@@ -46,11 +46,6 @@ claude_code:
   # anthropic_default_sonnet_model: "..."
   # anthropic_default_haiku_model: "..."
   # claude_code_subagent_model: "..."
-
-omp:
-  base_url: "http://localhost:11434"
-  # Override the top-level api_key for omp specifically:
-  # api_key: "sk-omp-only"
 ```
 
 ## Usage

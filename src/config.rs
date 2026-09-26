@@ -39,18 +39,10 @@ pub struct ClaudeCodeConfig {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct OmPConfig {
-    pub base_url: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub api_key: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     pub api_key: String,
     pub harness: Harness,
     pub claude_code: ClaudeCodeConfig,
-    pub omp: OmPConfig,
 }
 
 impl Config {
@@ -114,8 +106,6 @@ harness: "claude-code"
 claude_code:
   anthropic_base_url: "http://localhost:20128"
   anthropic_default_opus_model: "my-opus"
-omp:
-  base_url: "http://localhost:11434"
 "#;
 
     #[test]
@@ -144,8 +134,6 @@ harness: "opencode"
 claude_code:
   anthropic_base_url: "http://localhost:20128"
   anthropic_default_haiku_model: ""
-omp:
-  base_url: "http://localhost:11434"
 "#;
         let mut cfg: Config = serde_yaml::from_str(raw).unwrap();
         cfg.normalize();

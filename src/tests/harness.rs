@@ -1,5 +1,5 @@
 use super::*;
-use crate::config::{ClaudeCodeConfig, Harness, OmPConfig};
+use crate::config::{ClaudeCodeConfig, Harness};
 
 fn fixture_config() -> Config {
     Config {
@@ -12,10 +12,6 @@ fn fixture_config() -> Config {
             anthropic_default_sonnet_model: None,
             anthropic_default_haiku_model: None,
             claude_code_subagent_model: None,
-        },
-        omp: OmPConfig {
-            base_url: "http://localhost:11434".to_string(),
-            api_key: None,
         },
     }
 }
