@@ -16,9 +16,7 @@ pub fn pick(options: Vec<String>) -> Result<Option<String>, Box<dyn std::error::
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())
         .spawn()
-        .map_err(|e| {
-            format!("failed to spawn `fzf` (is it installed?): {e}")
-        })?;
+        .map_err(|e| format!("failed to spawn `fzf` (is it installed?): {e}"))?;
 
     if let Some(stdin) = child.stdin.as_mut() {
         for opt in &options {

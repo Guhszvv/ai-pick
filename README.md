@@ -77,4 +77,4 @@ The harness choice via flag is persisted in `config.yaml` (only after model sele
 
 ## License
 
-MIT
+[MIT](LICENSE)

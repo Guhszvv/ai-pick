@@ -8,7 +8,7 @@ pub async fn get_models(api_key: &str, base_url: &str) -> Result<ModelResponse, 
     let url = format!("{base_url}/v1/models");
     let response = client.get(&url).bearer_auth(api_key).send().await?;
 
-    Ok(response.json().await?)
+    response.json().await
 }
 
 /// Discover opencode models via `opencode models` (one ID per line).

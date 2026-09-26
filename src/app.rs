@@ -41,19 +41,18 @@ impl App {
 
     /// Show display names in fzf, return the selected model.
     pub fn select_model(&self) -> Result<Option<Model>, Box<dyn std::error::Error>> {
-        let displays: Vec<String> =
-            self.models.iter().map(|m| m.display().to_string()).collect();
+        let displays: Vec<String> = self
+            .models
+            .iter()
+            .map(|m| m.display().to_string())
+            .collect();
         let selected = crate::fzf::pick(displays)?;
         Ok(selected.and_then(|display| self.find_model(&display)))
     }
 
     fn find_model(&self, display: &str) -> Option<Model> {
-        self.models
-            .iter()
-            .find(|m| m.display() == display)
-            .cloned()
+        self.models.iter().find(|m| m.display() == display).cloned()
     }
-
 }
 
 #[cfg(test)]
@@ -93,7 +92,10 @@ mod tests {
         let resp: ModelResponse = serde_json::from_str(RESPONSE).unwrap();
         let app = App::new(resp.models());
         assert_eq!(app.find_model("Qwen 3 Next").unwrap().id, "qwen/qwen3-next");
-        assert_eq!(app.find_model("auto/best-coding").unwrap().id, "auto/best-coding");
+        assert_eq!(
+            app.find_model("auto/best-coding").unwrap().id,
+            "auto/best-coding"
+        );
         assert!(app.find_model("nope").is_none());
     }
 }

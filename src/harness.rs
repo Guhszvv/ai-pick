@@ -26,9 +26,8 @@ pub fn validate_binaries(no_jail: bool, no_memory: bool) -> Result<(), String> {
     // ai-memory is only needed when both wrappers are active
     if !no_memory {
         check_binary("ai-memory").map_err(|_| {
-            format!(
-                "`ai-memory` not found in PATH. Install it or use --no-memory to skip it:\n  ai-pick --no-memory"
-            )
+            "`ai-memory` not found in PATH. Install it or use --no-memory to skip it:\n  ai-pick --no-memory"
+                .to_string()
         })?;
     }
 

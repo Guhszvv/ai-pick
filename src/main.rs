@@ -41,11 +41,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Persist CLI override only after a model was selected, so
     // cancellations and pre-picker errors never rewrite config.
-    if let Some(forced) = cli_args.harness_override() {
-        if forced != config.harness {
-            config.harness = forced;
-            config.save(&config_path)?;
-        }
+    if let Some(forced) = cli_args.harness_override()
+        && forced != config.harness
+    {
+        config.harness = forced;
+        config.save(&config_path)?;
     }
 
     // Validate required binaries are in PATH before attempting exec

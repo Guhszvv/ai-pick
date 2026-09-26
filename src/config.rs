@@ -82,7 +82,8 @@ impl Config {
     }
 
     /// Empty-string model overrides behave like absent ones (env var not exported).
-    fn normalize(&mut self) {        let c = &mut self.claude_code;
+    fn normalize(&mut self) {
+        let c = &mut self.claude_code;
         for field in [
             &mut c.anthropic_default_opus_model,
             &mut c.anthropic_default_sonnet_model,

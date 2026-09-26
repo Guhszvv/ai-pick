@@ -33,13 +33,24 @@ fn claude_wrapped_with_jail_and_envs() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "--env", "ANTHROPIC_AUTH_TOKEN=ollama",
-            "--env", "ANTHROPIC_API_KEY=sk-test",
-            "--env", "ANTHROPIC_BASE_URL=http://localhost:20128",
-            "--env", "CLAUDE_CODE_MAX_CONTEXT_TOKENS=1000",
-            "ai-memory", "run",
-            "claude", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "--env",
+            "ANTHROPIC_AUTH_TOKEN=ollama",
+            "--env",
+            "ANTHROPIC_API_KEY=sk-test",
+            "--env",
+            "ANTHROPIC_BASE_URL=http://localhost:20128",
+            "--env",
+            "CLAUDE_CODE_MAX_CONTEXT_TOKENS=1000",
+            "ai-memory",
+            "run",
+            "claude",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
 }
@@ -58,7 +69,11 @@ fn omits_max_context_tokens_when_missing() {
         .get_args()
         .map(|a| a.to_str().unwrap().to_string())
         .collect();
-    assert!(!args.iter().any(|a| a.contains("CLAUDE_CODE_MAX_CONTEXT_TOKENS")));
+    assert!(
+        !args
+            .iter()
+            .any(|a| a.contains("CLAUDE_CODE_MAX_CONTEXT_TOKENS"))
+    );
     assert!(args.contains(&"--env".to_string()));
     assert!(args.iter().any(|a| a == "ANTHROPIC_API_KEY=sk-test"));
 }
@@ -79,9 +94,16 @@ fn opencode_wrapped_with_jail_without_anthropic_envs() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "ai-memory", "run",
-            "opencode", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "ai-memory",
+            "run",
+            "opencode",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
     assert!(!args.iter().any(|a| a.starts_with("ANTHROPIC_")));
@@ -105,10 +127,22 @@ fn exports_optional_model_overrides() {
         .get_args()
         .map(|a| a.to_str().unwrap().to_string())
         .collect();
-    assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_OPUS_MODEL=local-opus"));
-    assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_SONNET_MODEL=local-sonnet"));
-    assert!(args.iter().any(|a| a == "ANTHROPIC_DEFAULT_HAIKU_MODEL=local-haiku"));
-    assert!(args.iter().any(|a| a == "CLAUDE_CODE_SUBAGENT_MODEL=local-sub"));
+    assert!(
+        args.iter()
+            .any(|a| a == "ANTHROPIC_DEFAULT_OPUS_MODEL=local-opus")
+    );
+    assert!(
+        args.iter()
+            .any(|a| a == "ANTHROPIC_DEFAULT_SONNET_MODEL=local-sonnet")
+    );
+    assert!(
+        args.iter()
+            .any(|a| a == "ANTHROPIC_DEFAULT_HAIKU_MODEL=local-haiku")
+    );
+    assert!(
+        args.iter()
+            .any(|a| a == "CLAUDE_CODE_SUBAGENT_MODEL=local-sub")
+    );
 }
 
 #[test]
@@ -185,11 +219,20 @@ fn claude_no_memory_keeps_jail_skips_ai_memory() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "--env", "ANTHROPIC_AUTH_TOKEN=ollama",
-            "--env", "ANTHROPIC_API_KEY=sk-test",
-            "--env", "ANTHROPIC_BASE_URL=http://localhost:20128",
-            "claude", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "--env",
+            "ANTHROPIC_AUTH_TOKEN=ollama",
+            "--env",
+            "ANTHROPIC_API_KEY=sk-test",
+            "--env",
+            "ANTHROPIC_BASE_URL=http://localhost:20128",
+            "claude",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
 }
@@ -210,8 +253,14 @@ fn opencode_no_memory_keeps_jail_skips_ai_memory() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "opencode", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "opencode",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
 }
@@ -249,9 +298,16 @@ fn omp_wrapped_with_jail_and_memory() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "ai-memory", "run",
-            "omp", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "ai-memory",
+            "run",
+            "omp",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
 }
@@ -291,10 +347,14 @@ fn omp_no_memory_keeps_jail_skips_ai_memory() {
     assert_eq!(
         args,
         vec![
-            "--gpu", "--network", "--agent-state", "--no-status-bar",
-            "omp", "--model", "qwen/qwen3-next"
+            "--gpu",
+            "--display",
+            "--network",
+            "--agent-state",
+            "--no-status-bar",
+            "omp",
+            "--model",
+            "qwen/qwen3-next"
         ]
     );
 }
-
-
