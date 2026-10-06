@@ -18,7 +18,7 @@ The command is wrapped with `ai-jail` + `ai-memory` for sandboxing and long-term
 ## Setup
 
 ```bash
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/Guhszvv/ai-pick/master/install.sh | bash
 ```
 
 This builds the release binary, copies it to `~/.local/bin/`, and creates `~/.config/ai-pick/config.yaml` from the example (only if it doesn't exist yet). Run again anytime to update.
