@@ -4,6 +4,7 @@ mod cli;
 mod config;
 mod fzf;
 mod harness;
+mod version;
 
 use clap::Parser;
 use std::os::unix::process::CommandExt;
@@ -11,6 +12,15 @@ use std::os::unix::process::CommandExt;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli_args = cli::Cli::parse();
+
+    // Check for updates (silent unless update needed).
+    // --version-debug prints the comparison and exits without touching config/fzf.
+    if cli_args.version_debug.is_some() {
+        version::check_version(cli_args.version_debug.as_deref()).await?;
+        return Ok(());
+    }
+    let _ = version::check_version(None).await?;
+
     let config_path = cli_args
         .config
         .clone()

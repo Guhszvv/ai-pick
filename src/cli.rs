@@ -25,6 +25,9 @@ pub struct Cli {
     /// Path to config file (default: ~/.config/ai-pick/config.yaml).
     #[arg(long)]
     pub config: Option<PathBuf>,
+    /// Version to compare against for testing (e.g., ai-pick --version-debug 2.0.0)
+    #[arg(long)]
+    pub version_debug: Option<String>,
 }
 
 impl Cli {
@@ -75,5 +78,11 @@ mod tests {
         assert!(Cli::try_parse_from(["ai-pick", "--claude-code", "--opencode"]).is_err());
         assert!(Cli::try_parse_from(["ai-pick", "--claude-code", "--omp"]).is_err());
         assert!(Cli::try_parse_from(["ai-pick", "--opencode", "--omp"]).is_err());
+    }
+
+    #[test]
+    fn version_debug_flag_works() {
+        let cli = Cli::try_parse_from(["ai-pick", "--version-debug", "2.0.0"]).unwrap();
+        assert_eq!(cli.version_debug, Some("2.0.0".to_string()));
     }
 }
