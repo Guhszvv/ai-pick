@@ -49,6 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         config::Harness::Opencode => api::get_opencode_models()?,
         config::Harness::OmP => api::get_omp_models()?,
+        config::Harness::Pi => {
+            api::get_models(&config.api_key, &config.claude_code.anthropic_base_url)
+                .await?
+                .models()
+        }
     };
 
     let app = app::App::new(models);
@@ -98,6 +103,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 harness::build_harness_command("omp", &model, cli_args.no_jail, cli_args.no_memory)
                     .exec();
             Err(format!("failed to exec `omp`: {err}").into())
+        }
+        config::Harness::Pi => {
+            let err =
+                harness::build_harness_command("pi", &model, cli_args.no_jail, cli_args.no_memory)
+                    .exec();
+            Err(format!("failedto exec 'pi': {err}").into())
         }
     }
 }

@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+use crate::harness;
+
 /// Last harness used by the app. Decided on first run (wizard — follow-up),
 /// persisted afterwards via [`Config::save`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
@@ -10,6 +12,7 @@ pub enum Harness {
     ClaudeCode,
     Opencode,
     OmP,
+    Pi,
 }
 
 impl fmt::Display for Harness {
@@ -18,6 +21,7 @@ impl fmt::Display for Harness {
             Harness::ClaudeCode => "claude-code",
             Harness::Opencode => "opencode",
             Harness::OmP => "omp",
+            Harness::Pi => "pi",
         };
         write!(f, "{s}")
     }
@@ -30,6 +34,7 @@ impl std::str::FromStr for Harness {
             "claude-code" => Ok(Harness::ClaudeCode),
             "opencode" => Ok(Harness::Opencode),
             "omp" => Ok(Harness::OmP),
+            "pi" => Ok(Harness::Pi),
             other => Err(format!(
                 "unknown harness `{other}` (expected claude-code|opencode|omp)"
             )),

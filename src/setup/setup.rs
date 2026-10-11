@@ -10,9 +10,6 @@ use crate::{
     harness::validate_harness,
 };
 
-/// Interactive setup for the claude-code harness: pick the default models
-/// (opus / sonnet / haiku / subagent) and persist them to `path`.
-/// Esc on a picker skips that field, keeping its current value.
 pub async fn setup(
     arg: Harness,
     config: &mut Config,

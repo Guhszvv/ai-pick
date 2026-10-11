@@ -8,14 +8,16 @@ use crate::config::Harness;
 #[command(name = "ai-pick", about = "Pick a model and exec the harness")]
 pub struct Cli {
     /// Use the claude-code harness for this run (also persisted).
-    #[arg(long, conflicts_with_all = ["opencode", "omp"])]
+    #[arg(long, conflicts_with_all = ["opencode", "omp", "pi"])]
     pub claude_code: bool,
     /// Use the opencode harness for this run (also persisted).
-    #[arg(long, conflicts_with_all = ["claude_code", "omp"])]
+    #[arg(long, conflicts_with_all = ["claude_code", "omp", "pi"])]
     pub opencode: bool,
     /// Use the oh-my-pi (omp) harness for this run (also persisted).
-    #[arg(long, conflicts_with_all = ["claude_code", "opencode"])]
+    #[arg(long, conflicts_with_all = ["claude_code", "opencode", "pi"])]
     pub omp: bool,
+    #[arg(long, conflicts_with_all = ["claude_code", "opencode", "omp"])]
+    pub pi: bool,
     /// Skip ai-jail wrapper — exec the harness directly.
     #[arg(long)]
     pub no_jail: bool,
@@ -41,6 +43,8 @@ impl Cli {
             Some(Harness::Opencode)
         } else if self.omp {
             Some(Harness::OmP)
+        } else if self.pi {
+            Some(Harness::Pi)
         } else {
             None
         }
