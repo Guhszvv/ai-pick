@@ -59,8 +59,14 @@ pub async fn get_latest_version() -> Result<Option<String>, reqwest::Error> {
 /// Compares two versions and returns the update status.
 fn compare_versions(local: &str, remote: &str) -> UpdateStatus {
     // Tolerate a leading `v` in GitHub release tags (e.g. `v2.1.0`).
-    let local_ver: Version = local.trim_start_matches('v').parse().unwrap_or_else(|_| Version::parse("0.0.0").unwrap());
-    let remote_ver: Version = remote.trim_start_matches('v').parse().unwrap_or_else(|_| Version::parse("0.0.0").unwrap());
+    let local_ver: Version = local
+        .trim_start_matches('v')
+        .parse()
+        .unwrap_or_else(|_| Version::parse("0.0.0").unwrap());
+    let remote_ver: Version = remote
+        .trim_start_matches('v')
+        .parse()
+        .unwrap_or_else(|_| Version::parse("0.0.0").unwrap());
 
     match local_ver.cmp(&remote_ver) {
         std::cmp::Ordering::Greater => UpdateStatus::SameOrNewer,
@@ -74,11 +80,9 @@ pub fn show_update_message(local: &str, remote: &str) -> Option<String> {
     let status = compare_versions(local, remote);
 
     if status.is_newer_needed() {
-        let setup_cmd = "curl -fsSL https://raw.githubusercontent.com/Guhszvv/ai-pick/master/install.sh | bash";
-        let msg = format!(
-            "New version {} available! Run: {}\n",
-            remote, setup_cmd
-        );
+        let setup_cmd =
+            "curl -fsSL https://raw.githubusercontent.com/Guhszvv/ai-pick/master/install.sh | bash";
+        let msg = format!("New version {} available! Run: {}\n", remote, setup_cmd);
         println!("{}", msg);
         return Some(msg);
     }
@@ -89,7 +93,9 @@ pub fn show_update_message(local: &str, remote: &str) -> Option<String> {
 ///
 /// If `debug_version` is provided, compares local vs debug version.
 /// Otherwise, fetches latest from GitHub.
-pub async fn check_version(debug_version: Option<&str>) -> Result<Option<String>, Box<dyn std::error::Error>> {
+pub async fn check_version(
+    debug_version: Option<&str>,
+) -> Result<Option<String>, Box<dyn std::error::Error>> {
     let local = get_local_version();
     let remote = match debug_version {
         Some(debug_ver) => debug_ver.to_string(),
@@ -105,7 +111,11 @@ pub async fn check_version(debug_version: Option<&str>) -> Result<Option<String>
         let newer = compare_versions(local, &remote).is_newer_needed();
         println!(
             "version-debug: local {local}, compared {remote} -> {}",
-            if newer { "update available" } else { "up to date" }
+            if newer {
+                "update available"
+            } else {
+                "up to date"
+            }
         );
     }
 
@@ -118,23 +128,38 @@ mod tests {
 
     #[test]
     fn older_remote_needs_update() {
-        assert_eq!(compare_versions("2.0.0", "3.0.0"), UpdateStatus::NeedsUpdate);
+        assert_eq!(
+            compare_versions("2.0.0", "3.0.0"),
+            UpdateStatus::NeedsUpdate
+        );
     }
 
     #[test]
     fn equal_or_newer_local_is_fine() {
-        assert_eq!(compare_versions("2.0.0", "2.0.0"), UpdateStatus::SameOrNewer);
-        assert_eq!(compare_versions("2.1.0", "2.0.0"), UpdateStatus::SameOrNewer);
+        assert_eq!(
+            compare_versions("2.0.0", "2.0.0"),
+            UpdateStatus::SameOrNewer
+        );
+        assert_eq!(
+            compare_versions("2.1.0", "2.0.0"),
+            UpdateStatus::SameOrNewer
+        );
     }
 
     #[test]
     fn leading_v_tag_is_tolerated() {
-        assert_eq!(compare_versions("2.0.0", "v3.0.0"), UpdateStatus::NeedsUpdate);
+        assert_eq!(
+            compare_versions("2.0.0", "v3.0.0"),
+            UpdateStatus::NeedsUpdate
+        );
     }
 
     #[test]
     fn unparseable_remote_never_blocks() {
-        assert_eq!(compare_versions("2.0.0", "garbage"), UpdateStatus::SameOrNewer);
+        assert_eq!(
+            compare_versions("2.0.0", "garbage"),
+            UpdateStatus::SameOrNewer
+        );
         assert!(show_update_message("2.0.0", "garbage").is_none());
     }
 
