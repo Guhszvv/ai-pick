@@ -31,8 +31,14 @@ pub async fn setup(
     let c = &mut config.claude_code;
     for (label, field) in [
         ("Select the Opus model", &mut c.anthropic_default_opus_model),
-        ("Select the Sonnet model", &mut c.anthropic_default_sonnet_model),
-        ("Select the Haiku model", &mut c.anthropic_default_haiku_model),
+        (
+            "Select the Sonnet model",
+            &mut c.anthropic_default_sonnet_model,
+        ),
+        (
+            "Select the Haiku model",
+            &mut c.anthropic_default_haiku_model,
+        ),
         (
             "Select the Subagent model",
             &mut c.claude_code_subagent_model,

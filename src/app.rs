@@ -45,7 +45,10 @@ impl App {
     }
 
     /// Same as [`App::select_model`] with a custom fzf header.
-    pub fn select_with_header(&self, header: &str) -> Result<Option<Model>, Box<dyn std::error::Error>> {
+    pub fn select_with_header(
+        &self,
+        header: &str,
+    ) -> Result<Option<Model>, Box<dyn std::error::Error>> {
         let displays: Vec<String> = self
             .models
             .iter()
