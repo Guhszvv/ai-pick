@@ -16,6 +16,7 @@ pub struct Cli {
     /// Use the oh-my-pi (omp) harness for this run (also persisted).
     #[arg(long, conflicts_with_all = ["claude_code", "opencode", "pi"])]
     pub omp: bool,
+    /// Use the pi harness for this run (also persisted) (without AI jail, due to bugs).
     #[arg(long, conflicts_with_all = ["claude_code", "opencode", "omp"])]
     pub pi: bool,
     /// Skip ai-jail wrapper — exec the harness directly.
@@ -30,6 +31,7 @@ pub struct Cli {
     /// Version to compare against for testing (e.g., ai-pick --version-debug 2.0.0)
     #[arg(long)]
     pub version_debug: Option<String>,
+    /// Setup models (ONLY CLAUDE-CODE) (haiku, opus, sonnet and subagents model)
     #[arg(long)]
     pub setup: Option<String>,
 }

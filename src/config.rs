@@ -2,8 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use crate::harness;
-
 /// Last harness used by the app. Decided on first run (wizard — follow-up),
 /// persisted afterwards via [`Config::save`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]

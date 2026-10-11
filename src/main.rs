@@ -4,7 +4,7 @@ mod cli;
 mod config;
 mod fzf;
 mod harness;
-mod setup;
+mod setup_workflow;
 mod version;
 
 use clap::Parser;
@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // --setup runs its own picker pipeline and exits before the main flow.
     if let Some(name) = &cli_args.setup {
         let harness: config::Harness = name.parse()?;
-        setup::setup::setup(harness, &mut config, &config_path).await?;
+        setup_workflow::setup::setup_claude_code(harness, &mut config, &config_path).await?;
         return Ok(());
     }
 
@@ -105,9 +105,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Err(format!("failed to exec `omp`: {err}").into())
         }
         config::Harness::Pi => {
-            let err =
-                harness::build_harness_command("pi", &model, cli_args.no_jail, cli_args.no_memory)
-                    .exec();
+            let err = harness::build_harness_command("pi", &model, true, cli_args.no_memory).exec();
             Err(format!("failedto exec 'pi': {err}").into())
         }
     }

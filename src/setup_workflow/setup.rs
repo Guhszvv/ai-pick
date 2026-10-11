@@ -10,7 +10,7 @@ use crate::{
     harness::validate_harness,
 };
 
-pub async fn setup(
+pub async fn setup_claude_code(
     arg: Harness,
     config: &mut Config,
     path: &Path,
