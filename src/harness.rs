@@ -1,7 +1,7 @@
 use std::process::Command;
 
 use crate::app::Model;
-use crate::config::Config;
+use crate::config::{Config, Harness};
 
 /// Check if a binary exists in PATH.
 fn check_binary(name: &str) -> Result<(), String> {
@@ -137,6 +137,14 @@ pub fn build_harness_command(name: &str, model: &Model, no_jail: bool, no_memory
         cmd
     } else {
         wrap_with_jail(name, args, vec![], no_memory)
+    }
+}
+
+pub fn validate_harness(harness: Harness, valid: Option<Harness>) -> bool {
+    if let Some(expected) = valid {
+        harness == expected
+    } else {
+        true
     }
 }
 

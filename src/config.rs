@@ -23,6 +23,20 @@ impl fmt::Display for Harness {
     }
 }
 
+impl std::str::FromStr for Harness {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "claude-code" => Ok(Harness::ClaudeCode),
+            "opencode" => Ok(Harness::Opencode),
+            "omp" => Ok(Harness::OmP),
+            other => Err(format!(
+                "unknown harness `{other}` (expected claude-code|opencode|omp)"
+            )),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ClaudeCodeConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -125,6 +139,14 @@ claude_code:
     fn rejects_unknown_harness() {
         let raw = VALID.replace("claude-code", "unknown-harness");
         assert!(serde_yaml::from_str::<Config>(&raw).is_err());
+    }
+
+    #[test]
+    fn harness_from_str() {
+        assert_eq!("claude-code".parse(), Ok(Harness::ClaudeCode));
+        assert_eq!("opencode".parse(), Ok(Harness::Opencode));
+        assert_eq!("omp".parse(), Ok(Harness::OmP));
+        assert!("bogus".parse::<Harness>().is_err());
     }
 
     #[test]

@@ -3,15 +3,19 @@ use std::process::{Command, Stdio};
 
 /// Pipe `options` (one per line) into external `fzf` and return selected line.
 /// Returns `Ok(None)` when user cancels (Esc / Ctrl-C, fzf exit 130/1 with no output).
-pub fn pick(options: Vec<String>) -> Result<Option<String>, Box<dyn std::error::Error>> {
+pub fn pick(
+    options: Vec<String>,
+    header: String,
+) -> Result<Option<String>, Box<dyn std::error::Error>> {
     if options.is_empty() {
         return Ok(None);
     }
-
+    let header_arg = format!("--header={}", header);
     let mut child = Command::new("fzf")
         .arg("--prompt=Search: ")
         .arg("--layout=reverse")
-        .arg("--header=↑↓ navegar   Enter selecionar   Esc sair")
+        .arg(header_arg)
+        .arg("--footer=↑↓ navegar   Enter selecionar   Esc sair")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())

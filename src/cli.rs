@@ -28,6 +28,8 @@ pub struct Cli {
     /// Version to compare against for testing (e.g., ai-pick --version-debug 2.0.0)
     #[arg(long)]
     pub version_debug: Option<String>,
+    #[arg(long)]
+    pub setup: Option<String>,
 }
 
 impl Cli {

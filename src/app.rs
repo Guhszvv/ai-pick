@@ -41,12 +41,17 @@ impl App {
 
     /// Show display names in fzf, return the selected model.
     pub fn select_model(&self) -> Result<Option<Model>, Box<dyn std::error::Error>> {
+        self.select_with_header("Select the Main Model")
+    }
+
+    /// Same as [`App::select_model`] with a custom fzf header.
+    pub fn select_with_header(&self, header: &str) -> Result<Option<Model>, Box<dyn std::error::Error>> {
         let displays: Vec<String> = self
             .models
             .iter()
             .map(|m| m.display().to_string())
             .collect();
-        let selected = crate::fzf::pick(displays)?;
+        let selected = crate::fzf::pick(displays, header.to_string())?;
         Ok(selected.and_then(|display| self.find_model(&display)))
     }
 

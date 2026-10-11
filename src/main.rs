@@ -4,6 +4,7 @@ mod cli;
 mod config;
 mod fzf;
 mod harness;
+mod setup;
 mod version;
 
 use clap::Parser;
@@ -29,6 +30,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let p = config_path.display();
         format!("{e} (copy config.example.yaml to {p} and fill it in)")
     })?;
+
+    // --setup runs its own picker pipeline and exits before the main flow.
+    if let Some(name) = &cli_args.setup {
+        let harness: config::Harness = name.parse()?;
+        setup::setup::setup(harness, &mut config, &config_path).await?;
+        return Ok(());
+    }
 
     // Resolve harness early so we know which discovery to use.
     let harness = cli_args.harness_override().unwrap_or(config.harness);
