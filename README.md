@@ -1,6 +1,6 @@
 # ai-pick
 
-CLI to pick an LLM model via `fzf` and launch a harness (`claude-code`, `opencode`, or `omp`) with the selected model.
+CLI to pick an LLM model via `fzf` and launch a harness (`claude-code`, `opencode`, or `omp`) with the selected model and wrapped by ai-jail and ai-memory.
 
 ## How it works
 
