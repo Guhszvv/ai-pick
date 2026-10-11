@@ -69,7 +69,6 @@ fn claude_envs(model: &Model, config: &Config) -> Vec<(String, String)> {
         .clone()
         .unwrap_or_else(|| config.api_key.clone());
     let mut envs = vec![
-        ("ANTHROPIC_AUTH_TOKEN".into(), "ollama".into()),
         ("ANTHROPIC_API_KEY".into(), api_key),
         (
             "ANTHROPIC_BASE_URL".into(),
