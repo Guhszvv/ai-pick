@@ -5,7 +5,11 @@ use crate::config::Harness;
 
 /// Pick a model, then exec the harness (`claude-code` default from config).
 #[derive(Debug, Parser)]
-#[command(name = "ai-pick", about = "Pick a model and exec the harness")]
+#[command(
+    name = "ai-pick",
+    about = "Pick a model and exec the harness",
+    version
+)]
 pub struct Cli {
     /// Use the claude-code harness for this run (also persisted).
     #[arg(long, conflicts_with_all = ["opencode", "omp", "pi"])]
@@ -92,5 +96,12 @@ mod tests {
     fn version_debug_flag_works() {
         let cli = Cli::try_parse_from(["ai-pick", "--version-debug", "2.0.0"]).unwrap();
         assert_eq!(cli.version_debug, Some("2.0.0".to_string()));
+    }
+
+    #[test]
+    fn version_flag_prints_and_exits() {
+        let err = Cli::try_parse_from(["ai-pick", "--version"]).unwrap_err();
+        assert_eq!(err.kind(), clap::error::ErrorKind::DisplayVersion);
+        assert!(err.to_string().contains(env!("CARGO_PKG_VERSION")));
     }
 }
