@@ -53,6 +53,8 @@ pub struct ClaudeCodeConfig {
     pub anthropic_default_haiku_model: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub claude_code_subagent_model: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auto_mode_model: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

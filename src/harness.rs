@@ -98,6 +98,10 @@ fn claude_envs(model: &Model, config: &Config) -> Vec<(String, String)> {
             "CLAUDE_CODE_SUBAGENT_MODEL",
             &config.claude_code.claude_code_subagent_model,
         ),
+        (
+            "CLAUDE_CODE_AUTO_MODE_MODEL",
+            &config.claude_code.auto_mode_model,
+        ),
     ] {
         if let Some(v) = val {
             envs.push((env.into(), v.clone()));

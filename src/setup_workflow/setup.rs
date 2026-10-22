@@ -40,6 +40,7 @@ pub async fn setup_claude_code(
             "Select the Subagent model",
             &mut c.claude_code_subagent_model,
         ),
+        ("Select auto mode model", &mut c.auto_mode_model),
     ] {
         if let Some(model) = app.select_with_header(label)? {
             *field = Some(model.id);

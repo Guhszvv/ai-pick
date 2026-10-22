@@ -12,6 +12,7 @@ fn fixture_config() -> Config {
             anthropic_default_sonnet_model: None,
             anthropic_default_haiku_model: None,
             claude_code_subagent_model: None,
+            auto_mode_model: None,
         },
     }
 }
